@@ -30,7 +30,7 @@ void load_mesh_or_pointcloud(const std::string &filename, MatrixXu &F, MatrixXf 
         extension = str_tolower(filename.substr(filename.size()-4));
 
     if (extension == ".ply")
-          load_ply(filename, F, V, N, false, progress);
+          load_ply(filename, F, V, N, true, progress);
     else if (extension == ".obj")
         load_obj(filename, F, V, progress);
     else if (extension == ".aln")
@@ -84,10 +84,10 @@ void load_ply(const std::string &filename, MatrixXu &F, MatrixXf &V,
         ply_get_element_info(element, &name, &nInstances);
         if (!strcmp(name, "vertex"))
             vertexCount = (uint32_t) nInstances;
-        else if (!strcmp(name, "face")) {
+        else if (!strcmp(name, "face") && load_faces) {
             faceCount = (uint32_t)nInstances;
-            if (faceCount > 0)
-                load_faces = true;
+            if (faceCount <= 0)
+                load_faces = false;
         }
     }
 

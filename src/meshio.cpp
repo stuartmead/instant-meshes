@@ -76,7 +76,7 @@ void load_ply(const std::string &filename, MatrixXu &F, MatrixXf &V,
     p_ply_element element = nullptr;
     uint32_t vertexCount = 0, faceCount = 0;
 
-    /* Inspect the structure of the PLY file, load faces if avaliable */
+    /* Inspect the structure of the PLY file, load number of faces if avaliable */
     while ((element = ply_get_next_element(ply, element)) != nullptr) {
         const char *name;
         long nInstances;
@@ -84,12 +84,13 @@ void load_ply(const std::string &filename, MatrixXu &F, MatrixXf &V,
         ply_get_element_info(element, &name, &nInstances);
         if (!strcmp(name, "vertex"))
             vertexCount = (uint32_t) nInstances;
-        else if (!strcmp(name, "face") && load_faces) {
+        else if (!strcmp(name, "face")) {
             faceCount = (uint32_t)nInstances;
-            if (faceCount <= 0)
-                load_faces = false;
         }
     }
+
+    if (faceCount <= 0)
+        load_faces = false;
 
     if (vertexCount == 0 && faceCount == 0)
         throw std::runtime_error("PLY file \"" + filename + "\" is invalid! No face/vertex/elements found!");
@@ -177,7 +178,7 @@ void load_ply(const std::string &filename, MatrixXu &F, MatrixXf &V,
             !ply_set_read_cb(ply, "vertex", "ny", rply_vertex_normal_cb, &vncbData, 1) ||
             !ply_set_read_cb(ply, "vertex", "nz", rply_vertex_normal_cb, &vncbData, 2)) {
             ply_close(ply);
-            throw std::runtime_error("PLY file \"" + filename + "\" does not contain vertex normal data or faces!");
+            throw std::runtime_error("PLY file \"" + filename + "\" does not contain vertex normal or face data!");
         }
     }
 
